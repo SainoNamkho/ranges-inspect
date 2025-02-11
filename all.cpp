@@ -16,7 +16,7 @@
 
 // Ranges formatter polyfill
 #ifndef __cpp_lib_format_ranges
-// We only support char, `CharT` is used to avoid ambiguous template partial specializations on msstl
+// We only support char, `CharT` is used to avoid ambiguous template partial specializations on MS STL
 template<std::ranges::input_range R, class CharT>
 struct std::formatter<R, CharT> : std::formatter<ranges::range_value_t<R>, CharT>
 {
@@ -79,6 +79,7 @@ struct std::formatter<Tuple<Ts...>>
 #endif
 #endif
 
+// You may define it to print more rare info, which might be helpful if my code brings additional bugs.
 // #define DEVELOPING
 #ifdef DEVELOPING
 #define __debug_println std::println
@@ -126,6 +127,7 @@ struct debug_view : R {
 
     // Implicit object parameter is more specialize than the templated parameter defined in operator| for range adaptor closures.
     // Derived classes should explicitly inherit them.
+    // However msvc does not resolve overloads correctly.
 #ifndef _MSC_VER
     template<class Closure>
     constexpr decltype(auto) operator|(Closure&& closure) & noexcept(noexcept(range_debug::debug_view(std::forward<Closure>(closure)(base_range())))) {
@@ -500,7 +502,7 @@ int main()
     //using namespace std::ranges;
     using namespace range_debug;
     auto v = std::vector{1, 2, 3, 4, 5};
-    auto v1 = v | debug
+    auto v1 = v //| debug
                 | filter([](auto&& x) { return x % 2; })
                 | transform([](auto&& x) { return 1; });
     // auto x = all(v);
